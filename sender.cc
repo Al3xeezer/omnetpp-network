@@ -15,10 +15,10 @@
 using namespace omnetpp;
 
 
-class sender : public cSimpleModule
+class Sender : public cSimpleModule
 {
   public:
-    virtual ~sender();
+    virtual ~Sender();
 
   protected:
     virtual void initialize() override;
@@ -26,31 +26,38 @@ class sender : public cSimpleModule
     virtual void sendCopyOf(myPacket *pck);
 
   private:
-    cQueue *txQueue;                    /*Define queue for transmission*/
+    cQueue *txQueue;                    /*Define queues for transmission*/
     unsigned short state_machine;       /*Define state_machine to react to diff events*/
     cMessage *timeout;                  /*Used as a trigger event for rtx*/
     myPacket *newPck;
+    unsigned int numCx;
 };
 
 // The module class needs to be registered with OMNeT++
-Define_Module(sender);
+Define_Module(Sender);
 
-sender::~sender(){
+Sender::~Sender(){
     txQueue->~cQueue();
 }
 
 
 
-void sender::initialize()
+void Sender::initialize()
 {
-    /*Initialize the Queue for tx*/
-    txQueue = new cQueue("txQueue");
-    timeout = new cMessage("timeout");
-    state_machine = STATE_IDLE;
-    WATCH(state_machine);
+    /*Initialize the Queues and the rtx timeouts for each cx*/
+    numCx = getParentModule()->par("numCx");
+
+    cQueue *listQueue[numCx];
+
+    for (i=0; i<numCx-1; ++i) {
+        listQueue[i] = new cQueue("txQueue");
+        timeout = new cMessage("timeout");
+        state_machine = STATE_IDLE;
+        WATCH(state_machine);
+    }
 }
 
-void sender::handleMessage(cMessage *msg)
+void Sender::handleMessage(cMessage *msg)
 {
     if (msg!=timeout) {
 
@@ -109,7 +116,7 @@ void sender::handleMessage(cMessage *msg)
     }
 }
 
-void sender::sendCopyOf(myPacket *pck)
+void Sender::sendCopyOf(myPacket *pck)
 {
     EV << "SENDER: Sending pck";
 

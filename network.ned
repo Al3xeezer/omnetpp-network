@@ -4,7 +4,7 @@
 // be capable of transmitting packets to another node
 //
 
-simple sender
+simple Sender
 {
     @display("i=block/tx");
     gates:
@@ -12,7 +12,7 @@ simple sender
         output out[];
 }
 
-simple receiver
+simple Receiver
 {
     @display("i=block/rx");
     gates:
@@ -20,7 +20,7 @@ simple receiver
         output out[];
 }
 
-simple source
+simple Source
 {
     @display("i=block/source");
     gates:
@@ -31,38 +31,39 @@ simple source
 // Compound module: node. This module gather the different simple modules 
 // previously defined.
 //
-module node
+module Node
 {
     parameters:
         @display("bgb=306,183;i=block/routing");
         bool hasSource = default(false);
         int numCx = default(4);
+        int nodeId;
     gates:
         input in[];
         output out[];
     submodules:
-        receiver: receiver {
+        receiver: Receiver {
             @display("p=194.48001,114.07");
         }
-        sender: sender {
+        sender: Sender {
             @display("p=126,51");
         }
-        source: source {
+        source: Source {
             @display("p=34,51");
         }
     connections:
-        source.out --> sender.in++;
-        for i=0..sizeof(numCx)-1 {
+        for i=0..sizeof(in)-1 {
             sender.out++ --> out++;
             receiver.in++ <-- in++;
         }
+        source.out --> sender.in++;
 
 }
 
 //
 // Network definition 
 //
-network complete
+network Complete
 {
     @display("bgb=428,222");
     types:
@@ -73,20 +74,19 @@ network complete
             per = 0.5;
         }
     submodules:
-        node1: node {
+        node1: Node {
             @display("p=58,105");
         }
-        node2: node {
+        node2: Node {
             @display("p=184,50");
         }
-        node3: node {
+        node3: Node {
             @display("p=344,50");
         }
-        node4: node {
+        node4: Node {
             @display("p=344,168");
         }
-        node5: node {
-
+        node5: Node {
             @display("p=161,168");
         }
     connections:

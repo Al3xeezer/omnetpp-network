@@ -12,7 +12,7 @@
 using namespace omnetpp;
 
 
-class receiver : public cSimpleModule
+class Receiver : public cSimpleModule
 {
   protected:
     virtual void initialize() override;
@@ -21,15 +21,15 @@ class receiver : public cSimpleModule
 };
 
 // The module class needs to be registered with OMNeT++
-Define_Module(receiver);
+Define_Module(Receiver);
 
 
-void receiver::initialize()
+void Receiver::initialize()
 {
 
 }
 
-void receiver::handleMessage(cMessage *msg)
+void Receiver::handleMessage(cMessage *msg)
 {
     EV << "New pck in receiver"<<endl;
     myPacket *pck = check_and_cast<myPacket *>(msg);
@@ -45,7 +45,7 @@ void receiver::handleMessage(cMessage *msg)
        }
 }
 
-void receiver::createPck(unsigned int seq, unsigned short TYPE) /*Returns the pointer of the created pck*/
+void Receiver::createPck(unsigned int seq, unsigned short TYPE) /*Returns the pointer of the created pck*/
 {
     char someName[15];
     sprintf(someName,"pck-%d",seq);
