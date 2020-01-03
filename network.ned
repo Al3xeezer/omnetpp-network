@@ -10,6 +10,7 @@ simple Sender
     gates:
         input in[];
         output out[];
+        input inS;
 }
 
 simple Receiver
@@ -55,8 +56,9 @@ module Node
         for i=0..sizeof(in)-1 {
             sender.out++ --> out++;
             receiver.in++ <-- in++;
+            receiver.out++ --> sender.in++;
         }
-        source.out --> sender.in++;
+        source.out --> sender.inS;
 
 }
 
@@ -70,7 +72,9 @@ network Complete
         channel Ethernet100 extends ned.DatarateChannel
         {
             //datarate = 100Mbps;
-            datarate = 9600bps;
+            //datarate = 9600bps;
+            datarate = 0.1Mbps;
+            delay=10ms;
             per = 0.5;
         }
     submodules:

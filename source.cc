@@ -2,8 +2,6 @@
 #include <string.h>
 #include <omnetpp.h>
 #include "myPacket_m.h"  // Use "myPacket" packet structure
-#include <iostream>
-#include <sstream>
 
 /*Type definitions for myPacket*/
 #define TYPE_PCK 0
@@ -53,7 +51,7 @@ void Source::initialize()
         EV << "[" << getParentModule()->getFullName() <<"]: Source initialized"<<endl;
 
         msgEvent = new cMessage("SourceEvent");
-        scheduleAt(meanTime,msgEvent);
+        scheduleAt(0+exponential(meanTime),msgEvent);
     }
 }
 
