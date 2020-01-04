@@ -28,7 +28,7 @@ class Sender : public cSimpleModule
   private:
     unsigned int numCx;                                     /*Define number of cx for the sender*/
     cQueue *txQueue[4];                                     /*Define queues for transmission*/
-    unsigned short state_machine[4];                        /*Define state_machine to react to diff events*/
+    unsigned short state_machine[4];                        /*Define state_machines to react to diff events*/
     cMessage *timeout[4];                                   /*Used as a trigger event for rtx*/
     myPacket *newPck;
 
@@ -75,7 +75,7 @@ void Sender::handleMessage(cMessage *msg)
          *     3.- Then, check the type of the pck and define 3 cases:
          *
          *      PCK: if routerIndex isn't -1 (-1 used to mark final nodes), check
-         *      if the queue[routerIndex] is empty (send) or not (insert in queue)
+         *      if the state_machine[routerIndex] is IDLE (send) or BUSY (insert in queue).
          *
          *      ACK: check pck.destination so, if the destination is this node, the ack
          *      is coming from another node advising the pck has arrived without error and
@@ -163,6 +163,7 @@ void Sender::handleMessage(cMessage *msg)
                         /*Cancel retransmission timer*/
                         cancelEvent(timeout[gateIndex]);
 
+                        /*Read first packet of the queue*/
                         newPck = (myPacket *)txQueue[gateIndex]->pop();
                         sendCopyOf(newPck,gateIndex);
 
@@ -213,8 +214,9 @@ void Sender::sendCopyOf(myPacket *pck, int index)
 
     /*Set the retransmission timer to 3 times the sending time (just need to be greater than RTT)*/
     //simtime_t FinishTime = gate("out",index)->getTransmissionChannel()->getTransmissionFinishTime();
-    simtime_t FinishTime = getParentModule()->gate("out",index)->getTransmissionChannel()->getTransmissionFinishTime();
     //simtime_t nextTime = simTime()+3*(FinishTime-simTime());
+
+    simtime_t FinishTime = getParentModule()->gate("out",index)->getTransmissionChannel()->getTransmissionFinishTime();
     simtime_t nextTime = simTime()+300*(FinishTime-simTime());
     scheduleAt(nextTime,timeout[index]);
 }

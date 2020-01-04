@@ -46,8 +46,6 @@ void Source::initialize()
         /*Initialize sequence number*/
         seq=1;
 
-        //sprintf(sourceName,"%c",getParentModule()->getFullName());
-
         EV << "[" << getParentModule()->getFullName() <<"]: Source initialized"<<endl;
 
         msgEvent = new cMessage("SourceEvent");
