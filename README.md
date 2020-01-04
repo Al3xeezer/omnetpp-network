@@ -19,6 +19,7 @@ Antes de comenzar a explicar el funcionamiento de cada uno de los módulos, se h
 ## Topología de red
 El esquema de red que se ha definido es el siguiente:
 
+![Esquema de red](/img/esquema.PNG)
 
 En él se ha definido un módulo compuesto al que se ha llamado *nodo*, el cual esta conformado por los tres módulos simples que se han mencionado anteriormente: source, sender y receiver.
 
@@ -73,4 +74,15 @@ Este módulo cuenta con las siguientes funciones:
     * **TYPE_ACK:** se comprueba el atributo *pck.destination* del paquete y, si el destino es este nodo, quiere decir que el ack viene desde otro nodo avisando que el paquete enviado ha llegado correctamente. Por lo tanto, se puede eliminar la copia almacenada en la cola de ese paquete y enviar el siguiente en el caso de que esa cola no estuviese vacía. Si el destino no es este nodo, el ack recibido ha sido creado por el receptor de este mismo nodo para avisar a otro que el paquete ha llegado correctamente. De esta forma, el emisor solo tiene que enviar el ack al nodo correspondiente (out[gateIndex]).
   
     * **TYPE_NACK:** se comprueba el atributo *pck.destination* del paquete y, si el destino es este nodo, quiere decir que otro nodo ha recibido el paquete que se ha enviado con errores y pide la retransmisión. Por lo tanto, el emisor tiene que volver a enviar el paquete (la copia que se habia almacenado en la cola correspondiente) vía `sendCopyOf()` (out[gateIndex]). Si el destino no es este nodo, el nack ha sido creado por el receptor de este mismo nodo para avisar a otro de que el paquete ha llegado con errores. De esta forma , el emisor solo tiene que enviar el nack al nodo correspondiente (out[gateIndex]).
+    
+## Comentarios/Problemáticas
+* En el código del repositorio se hace uso de *timeouts*. Al ejecutarlo es posible que este falle (si se hace en debug no, no entiendo muy bien el por qué). Esto se debe a como OMNeT++ maneja los tiempos de llegada:
 
+```c++
+simtime_t FinishTime = getParentModule()->gate("out",index)->getTransmissionChannel()->getTransmissionFinishTime();
+    simtime_t nextTime = simTime()+300*(FinishTime-simTime());
+    scheduleAt(nextTime,timeout[index]);
+```
+Para obtener los *timeouts*, en OMNeT++ se utiliza la función `getTransmissionFinishTime()`. Sin embargo, este tiempo de finalización es una estimación que realiza el programa de cual sería el tiempo de simulación en el que el paquete debería llegar, no el real. Por lo tanto hay una pequeña variación entre el real y el estimado. Además, éste método tiene otro problema. Tal y como se ha planteado el escenario, se tienen modulos compuestos (nodos) por otros módulos simples (emisor, receptor y fuente). Entonces, cuando se llama a esta función desde uno de los `Sender.cc`, el tiempo que devuelve no es el tiempo que tarda el mensaje recién enviado en llegar al siguiente nodo ya que éste todavía no ha salido al exterior (se encontraría en el enlace que conecta sender.out --> y el out del nodo). En caso de haber usado módulos simples si que devolvería correctamente el tiempo ya que el paquete se insertaría directamente en el enlace de salida del nodo.
+
+**NOTA: En caso de que siga dando error, comentar las líneas correspondientes a la generación y manejo de timeouts**. En mi caso, ejecutándolo en modo debug si que funciona sin errores.
