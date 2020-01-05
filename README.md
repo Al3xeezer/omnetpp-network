@@ -88,4 +88,4 @@ Para obtener los *timeouts*, en OMNeT++ se utiliza la función `getTransmissionF
 
 En mi implementación, he puesto un multiplicador (x300) a ese tiempo de propagación del paquete para que no salten continuamente los *timeouts*. Sin embargo, a veces no es suficiente (lo que provoca que de error la simulación).   
 
-**NOTA: En caso de que siga dando error, comentar las líneas correspondientes a la generación y manejo de timeouts** (sin los *timeouts* funciona sin errores). Aun así, ejecutándo la simulación en modo debug con los *timeouts* funciona sin errores.
+**NOTA: Ejecutar la simulación en modo debug**
