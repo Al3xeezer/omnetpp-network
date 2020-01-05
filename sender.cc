@@ -49,7 +49,7 @@ void Sender::initialize()
     EV << "[" << getParentModule()->getFullName() <<"]: Sender initialized with "<<numCx<<" connections"<<endl;
 
     /*Initialize the Queues and the rtx timeouts for each cx*/
-    for (int i=0; i<numCx-1; ++i) {
+    for (int i=0; i<numCx; ++i) {
         txQueue[i] = new cQueue("txQueue");
         timeout[i] = new cMessage("timeout");
         state_machine[i] = STATE_IDLE;
@@ -249,13 +249,17 @@ int Sender::router(myPacket *pck){
 
     int arrivedNode=getParentModule()->par("nodeId");
     int destination;
+    float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 
     switch (arrivedNode) {
         case 1:
-            destination = (rand() % 2);
+            if (r <= 0.25) {
+                destination = 0;
+            } else {
+                destination = 1;
+            }
             break;
         case 2:
-            //destination = (rand() % 2) + 1;
             if (pck->getDestination()==3) {
                 destination = 1;
             }
@@ -270,12 +274,14 @@ int Sender::router(myPacket *pck){
             destination = -1;
             break;
         case 5:
-            //destination = (rand() % 2) + 1;
             if (pck->getDestination()==3) {
                 destination = 1;
-            }
-            if (pck->getDestination()==4) {
-                destination = 2;
+            } else{
+                if (r <= 0.5) {
+                    destination = 1;
+                } else {
+                    destination = 2;
+                }
             }
             break;
     }
