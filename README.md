@@ -86,6 +86,4 @@ simtime_t FinishTime = getParentModule()->gate("out",index)->getTransmissionChan
 ```
 Para obtener los *timeouts*, en OMNeT++ se utiliza la función `getTransmissionFinishTime()`. **Este tiempo de finalización es una estimación que realiza el programa de cual sería el tiempo de simulación en el que el paquete debería llegar, no el real**. Por lo tanto hay una pequeña variación entre el real y el estimado. Además, éste método tiene otro problema. Tal y como se ha planteado el escenario, se tienen modulos compuestos (nodos) por otros módulos simples (emisor, receptor y fuente). Entonces, cuando se llama a esta función desde el emisor, el tiempo que devuelve no es el tiempo que tarda el mensaje recién enviado en llegar al siguiente nodo, ya que éste todavía no ha salido al exterior (se encontraría en el enlace **sender.out[ ] --> out[ ]** del nodo, por lo que te devuelve el tiempo estimado de ese enlace, no el externo). En caso de haber usado módulos simples si que devolvería correctamente el tiempo ya que el paquete se insertaría directamente en el enlace de salida del nodo.
 
-En mi implementación, he puesto un multiplicador (x300) a ese tiempo de propagación del paquete para que no salten continuamente los *timeouts*. Sin embargo, a veces no es suficiente (lo que provoca que de error la simulación).   
-
-**NOTA: Ejecutar la simulación en modo debug**
+En mi implementación, he puesto un multiplicador (x300) a ese tiempo de propagación del paquete para que no salten continuamente los *timeouts*.
